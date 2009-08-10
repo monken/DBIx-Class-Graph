@@ -1,4 +1,5 @@
-package TestLib::Schema::ComplexMap;
+package 
+  TestLib::Schema::ComplexMap;
 
 use base 'DBIx::Class';
 

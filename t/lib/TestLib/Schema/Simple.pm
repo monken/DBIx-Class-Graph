@@ -1,4 +1,5 @@
-package TestLib::Schema::Simple;
+package 
+  TestLib::Schema::Simple;
 
 use base 'DBIx::Class';
 
