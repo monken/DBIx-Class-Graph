@@ -44,7 +44,7 @@ $g->delete_vertex($g->get_vertex(3));
 
 is($rs->find(3), undef);
 
-is($rs->find(1)->childid, "");
+is($rs->find(1)->childid, undef);
 
 is(scalar $g->all_successors($v), 0);
 

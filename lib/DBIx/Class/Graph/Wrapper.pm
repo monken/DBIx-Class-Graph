@@ -76,10 +76,10 @@ sub delete_edge {
         return;
     }
     if ( $v[0]->_connect_by eq "predecessor" ) {
-        $v[1]->update( { $v[1]->_group_column => "" } );
+        $v[1]->update( { $v[1]->_group_column => undef } );
     }
     else {
-        $v[0]->update( { $v[0]->_group_column => "" } );
+        $v[0]->update( { $v[0]->_group_column => undef } );
     }
     return $g->next::method(@v);
 }
@@ -95,7 +95,7 @@ sub delete_vertex {
         @succ = $g->predecessors($v);
     }
     for (@succ) {
-        $_->update( { $_->_group_column => "" } );
+        $_->update( { $_->_group_column => undef } );
     }
     my $e = $g->next::method($v);
     $v->delete;

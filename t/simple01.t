@@ -30,7 +30,7 @@ is($rs->find(7)->vaterid, 1);
 
 $g->delete_edge($v, $nv);
 
-is($rs->find(7)->vaterid, "");
+is($rs->find(7)->vaterid, undef);
 
 is(scalar $g->all_successors($v), 5);
 
@@ -38,7 +38,7 @@ $g->delete_vertex($g->get_vertex(3));
 
 is($rs->find(3), undef);
 
-is($rs->find(5)->vaterid, "");
+is($rs->find(5)->vaterid, undef);
 
 is(scalar $g->all_successors($v), 2);
 
