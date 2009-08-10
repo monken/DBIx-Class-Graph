@@ -7,7 +7,6 @@ use Class::C3;
 use base qw/Graph/;
 use List::MoreUtils qw(uniq);
 
-
 # $self is an arrayref!
 
 sub _rs {
@@ -70,18 +69,23 @@ sub _add_edge {
 
 sub delete_edge {
     my $g = shift;
-    my @v = @_;
-    if ( @v != 2 ) {
-        warn "need 2 vertices to delete an edge";
-        return;
+    my ( $from, $to ) = @_;
+    $from->throw_exception("need 2 vertices to delete an edge") if ( @_ != 2 );
+
+    my $column = $from->_group_column;
+
+    ( $from, $to ) = ( $to, $from )
+      unless ( $from->_connect_by eq "predecessor" );
+
+    if ( $from->has_column($column) ) {
+        $to->update( { $from->_group_column => undef } );
+    } else {
+        my $rel = $from->_group_rel;
+        $to->delete_related( $rel,
+            { $from->_graph_foreign_column => $from->id } );
     }
-    if ( $v[0]->_connect_by eq "predecessor" ) {
-        $v[1]->update( { $v[1]->_group_column => undef } );
-    }
-    else {
-        $v[0]->update( { $v[0]->_group_column => undef } );
-    }
-    return $g->next::method(@v);
+
+    return $g->next::method(@_);
 }
 
 sub delete_vertex {

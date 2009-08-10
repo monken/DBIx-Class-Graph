@@ -9,12 +9,17 @@ use base qw/DBIx::Class/;
 
 __PACKAGE__->mk_classdata("_connect_by");
 __PACKAGE__->mk_classdata("_group_rel");
+__PACKAGE__->mk_classdata("_graph_foreign_column");
 __PACKAGE__->mk_classdata("_group_column");
 
 sub connect_graph {
     my $self = shift;
     my $rel  = shift;
     my $col  = shift;
+    if(ref $col eq "HASH") {
+        $self->_graph_foreign_column(values %$col);
+        ($col) = keys %$col;
+    }
     $self->_group_rel($col);
     my ( $primary_col, $too_much ) = $self->primary_columns
       or
@@ -41,14 +46,10 @@ sub connect_graph {
 
 }
 
-sub new {
-    my $self = shift->next::method(@_);
-    $self->result_source_instance->resultset_class(
-        'Memoria::Schema::ResultSet::ClientGroups');
-    return $self;
-}
 
 1;
+
+__END__
 
 =head1 NAME
 

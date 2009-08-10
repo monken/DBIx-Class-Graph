@@ -10,7 +10,7 @@ my $t = new TestLib;
 
 my $schema = $t->get_schema;
 
-my $g = $schema->resultset("Complex")->get_graph();
+my $g = $schema->resultset("Complex")->graph;
 
 #$g isa Graph
 
@@ -24,4 +24,9 @@ is( $g->successors( $g->get_vertex(3) ),   2, 'node 3 has 2 direct childs' );
 is( $g->successors( $g->get_vertex(2) ),   1, 'node 2 has 1 direct child' );
 is( $g->predecessors( $g->get_vertex(5) ), 2, 'node 5 has 2 parents child' );
 
+ok($g->delete_edge($g->get_vertex(1), $g->get_vertex(2)), 'delete edge');
+
+$g = $schema->resultset("Complex")->graph;
+
+is( scalar $g->edges,    5, 'got 5 edges' );
 done_testing;

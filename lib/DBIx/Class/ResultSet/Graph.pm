@@ -15,7 +15,7 @@ sub _build_graph {
     my $self = shift;
     my $source = $self->result_class;
     my $rel    = $source->_group_rel;
-    my @obj    = $self->all;
+    my @obj    = $self->search(undef, { prefetch => $source->_group_rel })->all;
     $self->set_cache( \@obj );
     my $g = new DBIx::Class::Graph::Wrapper( refvertexed => 1 );
     $g->_rs($self);
@@ -39,7 +39,7 @@ sub _build_graph {
             foreach my $pre ( $row->$rel->all ) {
                 ( $from, $to ) = (
                     $g->get_vertex( $row->id ),
-                    $g->get_vertex( $pre->get_column('parent') )
+                    $g->get_vertex( $pre->get_column( $source->_graph_foreign_column ) )
                 );
                 next unless $from && $to;
                 ( $from, $to ) = ( $to, $from )

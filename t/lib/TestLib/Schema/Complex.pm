@@ -14,6 +14,6 @@ __PACKAGE__->set_primary_key qw(id);
 
 __PACKAGE__->has_many( parents => 'TestLib::Schema::ComplexMap' => "child" );
 
-__PACKAGE__->connect_graph( predecessor => "parents" );
+__PACKAGE__->connect_graph( predecessor => { parents => 'parent' } );
 
 1;
