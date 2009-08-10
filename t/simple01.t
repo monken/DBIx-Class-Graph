@@ -12,7 +12,7 @@ my $rs = $schema->resultset("Simple");
 
 my $g = $rs->get_graph;
 
-is(ref $g, "DBIx::Class::Graph::Wrapper");
+isa_ok($g, "DBIx::Class::Graph::Wrapper");
 
 my $v = $g->get_vertex(1);
 
