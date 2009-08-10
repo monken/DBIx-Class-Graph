@@ -1,0 +1,34 @@
+Revision history for Perl extension DBIx::Class::Graph.
+
+0.11 2009-08-10
+  - rewrote a lot of the code.
+  - Handles a foreign table for parent/child connection now
+    this allows for multiple parents and childs on one object
+  - faster, removed some unnecessary prefetches and database roundtrips
+  - moosification
+
+0.05 2009-03-15
+  - We will not attempt to set a new resultset if it ->isa() already
+
+0.04 2009-03-10
+  - Bug with all_successors in Graph (see http://rt.cpan.org/Ticket/Display.html?id=43969)
+  - added test for that
+  - reverted to own implementation if all_successors and all_predecessors
+
+0.03  2009-03-07
+  - uses all_successors/all_predecessors from Graph (since 0.85)
+
+0.02  2008-08-01
+  - first release
+  - applied pod fixes
+  - added tests
+  - removed relationship feature
+
+0.01_02 2008-07-27
+  - removed perl 5.8.8 dependency
+  - added dependency sql-t
+
+0.01_01  Mon Mar  3 12:46:31 2008
+	- original version; created by h2xs 1.23 with options
+		-XAn DBIx::Class::Graph
+

@@ -1,0 +1,19 @@
+Changes
+failt/complex01.t
+lib/DBIx/Class/Graph.pm
+lib/DBIx/Class/Graph/Wrapper.pm
+lib/DBIx/Class/ResultSet/Graph.pm
+Makefile.PL
+MANIFEST			This list of files
+README
+t/DBIx-Class-Graph.t
+t/lib/TestLib.pm
+t/lib/TestLib/Schema.pm
+t/lib/TestLib/Schema/Complex.pm
+t/lib/TestLib/Schema/ComplexMap.pm
+t/lib/TestLib/Schema/Simple.pm
+t/lib/TestLib/Schema/SimpleSucc.pm
+t/simple01.t
+t/simple02.t
+t/simplesucc.t
+t/sqlite.db
