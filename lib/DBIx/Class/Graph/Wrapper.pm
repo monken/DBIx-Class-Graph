@@ -21,8 +21,10 @@ sub _add_edge {
     my $g = shift;
     my ( $from, $to ) = @_;
 
-    my @e = $g->next::method( $from, $to );
-    die "we need two vertices to succeed" if ( @e != 2 );
+    die "Please supply two vertices" if ( @_ != 2 );
+
+    $g->add_vertex($from) unless ( $g->has_vertex($from) );
+    $g->add_vertex($to)   unless ( $g->has_vertex($to) );
 
     if ( $from->has_column( $from->_group_column ) ) {
 
@@ -47,24 +49,27 @@ sub _add_edge {
     }
     elsif ( $from->result_source->has_relationship( $from->_group_column ) ) {
 
-        # warn "foobar";
-    }
-    else {
-        warn "foobar";
         my $rel    = $from->_group_rel;
-        my $addrel = "add_to_" . $from->_group_rel;
-        my $next   = 0;
-        for ( $to->$rel->all ) {
-            if ( $_->id == $from->id ) {
-                $next = 1;
-                last;
+        my $column = $from->_graph_foreign_column;
+        my $exists = 0;
+        foreach my $map ( $from->$rel->all ) {
+            ( $map->get_column($column) eq $to->id ) && ( $exists = 1 ) && last;
+        }
+
+        if ( $g->is_undirected ) {
+            foreach my $map ( $to->$rel->all ) {
+                ( $map->get_column($column) eq $from->id )
+                  && ( $exists = 1 )
+                  && last;
             }
         }
-        unless ($next) {
-            $to->$addrel($from);
-        }
+
+        $from->create_related( $rel, { $column => $to->id } ) unless ($exists);
+
     }
-    return @e;
+    ( $from, $to ) = ( $to, $from )
+      if ( $to->_connect_by eq "predecessor" );
+    return $g->next::method( $from, $to );
 }
 
 sub delete_edge {
@@ -79,7 +84,8 @@ sub delete_edge {
 
     if ( $from->has_column($column) ) {
         $to->update( { $from->_group_column => undef } );
-    } else {
+    }
+    else {
         my $rel = $from->_group_rel;
         $to->delete_related( $rel,
             { $from->_graph_foreign_column => $from->id } );
@@ -91,15 +97,14 @@ sub delete_edge {
 sub delete_vertex {
     my $g = shift;
     my $v = shift;
-    my @succ;
-    if ( $v->_connect_by eq "predecessor" ) {
-        @succ = $g->successors($v);
-    }
-    else {
-        @succ = $g->predecessors($v);
-    }
-    for (@succ) {
-        $_->update( { $_->_group_column => undef } );
+    if ( !$v->_graph_foreign_column ) {
+        my @succ =
+          ( $v->_connect_by eq "predecessor" )
+          ? $g->successors($v)
+          : $g->predecessors($v);
+        for (@succ) {
+            $_->update( { $_->_group_column => undef } );
+        }
     }
     my $e = $g->next::method($v);
     $v->delete;
@@ -146,6 +151,15 @@ sub all_predecessors {
         @pred = uniq @pred;
     }
     return @pred;
+}
+
+sub add_vertex {
+    my $self = shift;
+    my @v    = @_;
+    foreach my $v (@v) {
+        $v->insert unless $v->in_storage;
+    }
+    return $self->next::method(@v);
 }
 
 # Preloaded methods go here.

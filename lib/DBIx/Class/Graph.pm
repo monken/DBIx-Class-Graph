@@ -82,15 +82,22 @@ This module extends the DBIx::Class::ResultSet. Some methods are added to the re
 
 =head1 METHODS
 
+=head2 Result class methods
+
 =head2 connect_graph(@opt)
 
-The first argument is the relation to the next vertex. Possible values: "predecessor" and "successor"
+    __PACKAGE__->connect_graph( predecessor => 'parent_id' );
+    __PACKAGE__->connect_graph( successor   => 'child_id' );
+    __PACKAGE__->connect_graph( predecessor => { parents => 'parent_id' } );
+    __PACKAGE__->connect_graph( successor   => { childs => 'child_id' } );
+
+The first argument defines how the tree is build. You can either specify C<predecessor> or C<successor>.
 
 The name of the relation to the next vertex is defined by the second argument.
 
-=head1 RESULTSET METHODS
+=head2
 
-=head2 get_vertex($id)
+=head3 get_vertex($id)
 
 finds a vertex by searching the underlying resultset for C<$id> in the primary key column (only single primary keys are supported). It's not as smart as the original L<DBIx::Class::ResultSet/find> because it looks on the primary key(s) for C<$id> only.
 
@@ -100,30 +107,17 @@ finds a vertex by searching the underlying resultset for C<$id> in the primary k
 
 Simply sort the resultset
 
-  $rs->search(undef, {order_by => "title ASC"})->get_graph;
+  $rs->search(undef, {order_by => "title ASC"})->graph;
 
 =head1 CAVEATS
 
-=head2 Integrity
-
-It might be possible that some database actions are not recognized by the graph object and thus do not represent the correct status of the graph. To make sure you are working with the correct graph object reload it after editing the graph.
-If you see such a behaviour please report it to me.
-
 =head2 Multigraph
 
-you should ommit creating multigraphs. Most graph algorithms expect a simple graph and may break if they get a multigraph.
+Multipgraphs are not supported. This means you there can only be one edge per vertex pair and direction.
 
 =head2 Speed
 
-you should consider caching the output of your scripts since retrieving and creating a Graph is not very fast.
-
-=head1 TODO
-
-=over
-
-=item Add support for relationships as connector
-
-This would allow graphs which have multiple parents and multiple children
+you should consider caching the L<Graph> object if you are working with large number of vertices.
 
 =head1 SEE ALSO
 
