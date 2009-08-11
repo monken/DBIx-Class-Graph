@@ -5,6 +5,8 @@ use Moose;
 use DBIx::Class::Graph::Wrapper;
 extends 'DBIx::Class::ResultSet';
 
+use Scalar::Util qw(weaken);
+
 has _graph => (
     is         => 'rw',
     isa        => 'DBIx::Class::Graph::Wrapper',
@@ -37,7 +39,13 @@ sub _build__graph {
     $self->set_cache( \@obj );
     my $g = new DBIx::Class::Graph::Wrapper( refvertexed => 1 );
 
-    $g->add_vertex($_) for (@obj);
+    for (@obj) {
+        $g->add_vertex($_);
+        $_->_graph($g);
+        my $ref = $_->_graph;
+        weaken($_->{_graph});
+        
+    }
 
     foreach my $row (@obj) {
         my ( $from, $to ) = ();
