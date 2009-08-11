@@ -18,7 +18,7 @@ sub _add_edge {
     $g->add_vertex($from) unless ( $g->has_vertex($from) );
     $g->add_vertex($to)   unless ( $g->has_vertex($to) );
 
-    if ( $from->has_column( $from->_group_column ) ) {
+    if ( $from->has_column( $from->_graph_column ) ) {
 
         # we have no relationship
 
@@ -35,13 +35,13 @@ sub _add_edge {
     ( $from, $to ) = ( $to, $from )
       if ( $to->_connect_by eq "predecessor" );
 
-    if ( $from->has_column( $from->_group_column ) ) {
-        $from->update( { $from->_group_column => $to->id } )
-          unless ( $from->_group_column eq $to->id );
+    if ( $from->has_column( $from->_graph_column ) ) {
+        $from->update( { $from->_graph_column => $to->id } )
+          unless ( $from->_graph_column eq $to->id );
     }
-    elsif ( $from->result_source->has_relationship( $from->_group_column ) ) {
+    elsif ( $from->result_source->has_relationship( $from->_graph_column ) ) {
 
-        my $rel    = $from->_group_rel;
+        my $rel    = $from->_graph_rel;
         my $column = $from->_graph_foreign_column;
         my $exists = 0;
         foreach my $map ( $from->$rel->all ) {
@@ -69,16 +69,16 @@ sub delete_edge {
     my ( $from, $to ) = @_;
     $from->throw_exception("need 2 vertices to delete an edge") if ( @_ != 2 );
 
-    my $column = $from->_group_column;
+    my $column = $from->_graph_column;
 
     ( $from, $to ) = ( $to, $from )
       unless ( $from->_connect_by eq "predecessor" );
 
     if ( $from->has_column($column) ) {
-        $to->update( { $from->_group_column => undef } );
+        $to->update( { $from->_graph_column => undef } );
     }
     else {
-        my $rel = $from->_group_rel;
+        my $rel = $from->_graph_rel;
         $to->delete_related( $rel,
             { $from->_graph_foreign_column => $from->id } );
     }
@@ -95,7 +95,7 @@ sub delete_vertex {
           ? $g->successors($v)
           : $g->predecessors($v);
         for (@succ) {
-            $_->update( { $_->_group_column => undef } );
+            $_->update( { $_->_graph_column => undef } );
         }
     }
     my $e = $g->next::method($v);

@@ -8,9 +8,9 @@ our $VERSION = '0.05';
 use base qw/DBIx::Class/;
 
 __PACKAGE__->mk_classdata("_connect_by");
-__PACKAGE__->mk_classdata("_group_rel");
+__PACKAGE__->mk_classdata("_graph_rel");
 __PACKAGE__->mk_classdata("_graph_foreign_column");
-__PACKAGE__->mk_classdata("_group_column");
+__PACKAGE__->mk_classdata("_graph_column");
 
 sub connect_graph {
     my $self = shift;
@@ -20,7 +20,7 @@ sub connect_graph {
         $self->_graph_foreign_column(values %$col);
         ($col) = keys %$col;
     }
-    $self->_group_rel($col);
+    $self->_graph_rel($col);
     my ( $primary_col, $too_much ) = $self->primary_columns
       or
       $self->throw_exception( __PACKAGE__ . ' requires a primary key column' );
@@ -30,7 +30,7 @@ sub connect_graph {
     $self->throw_exception( q(Syntax for connect_graph is __PACKAGE__->connect_graph( predecessor/successor => 'column/relationship' )))
       unless ( grep { $_ eq $rel } qw(predecessor successor) );
     $self->_connect_by($rel);
-    $self->_group_column($col);
+    $self->_graph_column($col);
 
     if ( $self->has_column($col) ) {
         $self->belongs_to(
@@ -38,7 +38,7 @@ sub connect_graph {
               { "foreign." . $primary_col => "self." . $col },
             { join_type                   => 'left' }
         );
-        $self->_group_rel("_graph_relationship");
+        $self->_graph_rel("_graph_relationship");
     }
 
     $self->resultset_class('DBIx::Class::ResultSet::Graph')

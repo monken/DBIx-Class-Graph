@@ -7,15 +7,15 @@ extends 'DBIx::Class::ResultSet';
 
 
 has graph => ( is => 'rw', isa => 'DBIx::Class::Graph::Wrapper', lazy_build => 1 );
-has _group_rel => ( is => 'rw' );
+has _graph_rel => ( is => 'rw' );
 
 *get_graph = \&graph; # backwards compat
 
 sub _build_graph {
     my $self = shift;
     my $source = $self->result_class;
-    my $rel    = $source->_group_rel;
-    my @obj    = $self->search(undef, { prefetch => $source->_group_rel })->all;
+    my $rel    = $source->_graph_rel;
+    my @obj    = $self->search(undef, { prefetch => $source->_graph_rel })->all;
     $self->set_cache( \@obj );
     my $g = new DBIx::Class::Graph::Wrapper( refvertexed => 1 );
     
@@ -23,9 +23,9 @@ sub _build_graph {
 
     foreach my $row (@obj) {
         my ( $from, $to ) = ();
-        if ( $row->has_column( $source->_group_column ) ) {
+        if ( $row->has_column( $source->_graph_column ) ) {
             next
-              unless ( my $pre = $row->get_column( $source->_group_column ) );
+              unless ( my $pre = $row->get_column( $source->_graph_column ) );
             ( $from, $to ) =
               ( $g->get_vertex( $row->id ), $g->get_vertex($pre) );
             next unless $from && $to;
