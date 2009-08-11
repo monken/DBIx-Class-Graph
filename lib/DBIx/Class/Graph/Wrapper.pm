@@ -9,14 +9,6 @@ use List::MoreUtils qw(uniq);
 
 # $self is an arrayref!
 
-sub _rs {
-    my $self = shift;
-    if (@_) {
-        $self->[6] = $_[0];
-    }
-    return $self->[6];
-}
-
 sub _add_edge {
     my $g = shift;
     my ( $from, $to ) = @_;
@@ -115,8 +107,7 @@ sub get_vertex {
     my $self = shift;
     my $id   = shift;
     my @v    = $self->vertices;
-    my @cols = $self->_rs->result_source->primary_columns;
-    my $pkey = shift @cols;
+    my ($pkey) = $v[0]->primary_columns;
     for (@v) { return $_ if ( $_->can($pkey) && $_->$pkey eq $id ); }
 
 }

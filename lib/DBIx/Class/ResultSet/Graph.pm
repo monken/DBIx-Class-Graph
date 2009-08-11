@@ -18,8 +18,7 @@ sub _build_graph {
     my @obj    = $self->search(undef, { prefetch => $source->_group_rel })->all;
     $self->set_cache( \@obj );
     my $g = new DBIx::Class::Graph::Wrapper( refvertexed => 1 );
-    $g->_rs($self);
-
+    
     $g->add_vertex($_) for (@obj);
 
     foreach my $row (@obj) {

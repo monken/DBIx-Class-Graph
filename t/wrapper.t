@@ -13,31 +13,31 @@ my $g = $rs->graph;
 
 my $vertex = $rs->new_result({title => 'foo'});
 
-$g->add_vertex($vertex);
-$g->add_edge($vertex, $g->get_vertex(1));
+ok($g->add_vertex($vertex), 'add not in_storage vertex');
+ok($g->add_edge($vertex, $g->get_vertex(1)) ,'add edge from new vertex to an exiting one');
+
+ok($g = $schema->resultset("Complex")->graph, 'get graph again');
+
+is($g->vertices, 7, 'make sure new vertex was added');
+
+ok($g->add_edge($rs->new_result({title => 'foo'}), $rs->new_result({title => 'bar'})), 'add an edge between two new vertices');
+
+is($g->vertices, 9, 'the graph has wo more vertices');
 
 $g = $schema->resultset("Complex")->graph;
 
-is($g->vertices, 7);
+is($g->vertices, 9, 'even after recreation');
 
-$g->add_edge($rs->new_result({title => 'foo'}), $rs->new_result({title => 'bar'}));
+ok($g->delete_vertex($g->get_vertex(1)), 'delete the root vertex');
 
-is($g->vertices, 9);
+is($g->vertices, 8, 'one fewer vertices');
 
-$g = $schema->resultset("Complex")->graph;
-
-is($g->vertices, 9);
-
-ok($g->delete_vertex($g->get_vertex(1)));
-
-is($g->vertices, 8);
-
-is($g->edges, 4);
+is($g->edges, 4, 'three fewer edges');
 
 $g = $schema->resultset("Complex")->graph;
 
-is($g->vertices, 8);
+is($g->vertices, 8, 'even after recreation');
 
-is($g->edges, 4);
+is($g->edges, 4, 'even after recreation');
 
 done_testing;
