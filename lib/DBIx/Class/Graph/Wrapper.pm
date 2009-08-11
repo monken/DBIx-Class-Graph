@@ -17,6 +17,8 @@ sub _add_edge {
 
     $g->add_vertex($from) unless ( $g->has_vertex($from) );
     $g->add_vertex($to)   unless ( $g->has_vertex($to) );
+    
+    my ( $pkey ) = $from->primary_columns;
 
     if ( $from->has_column( $from->_graph_column ) ) {
 
@@ -36,8 +38,8 @@ sub _add_edge {
       if ( $to->_connect_by eq "predecessor" );
 
     if ( $from->has_column( $from->_graph_column ) ) {
-        $from->update( { $from->_graph_column => $to->id } )
-          unless ( $from->_graph_column eq $to->id );
+        $from->update( { $from->_graph_column => $to->$pkey } )
+          unless ( $from->_graph_column eq $to->$pkey );
     }
     elsif ( $from->result_source->has_relationship( $from->_graph_column ) ) {
 
@@ -45,18 +47,18 @@ sub _add_edge {
         my $column = $from->_graph_foreign_column;
         my $exists = 0;
         foreach my $map ( $from->$rel->all ) {
-            ( $map->get_column($column) eq $to->id ) && ( $exists = 1 ) && last;
+            ( $map->get_column($column) eq $to->$pkey ) && ( $exists = 1 ) && last;
         }
 
         if ( $g->is_undirected ) {
             foreach my $map ( $to->$rel->all ) {
-                ( $map->get_column($column) eq $from->id )
+                ( $map->get_column($column) eq $from->$pkey )
                   && ( $exists = 1 )
                   && last;
             }
         }
 
-        $from->create_related( $rel, { $column => $to->id } ) unless ($exists);
+        $from->create_related( $rel, { $column => $to->$pkey } ) unless ($exists);
 
     }
     ( $from, $to ) = ( $to, $from )
@@ -69,6 +71,8 @@ sub delete_edge {
     my ( $from, $to ) = @_;
     $from->throw_exception("need 2 vertices to delete an edge") if ( @_ != 2 );
 
+    my ( $pkey ) = $from->primary_columns;
+
     my $column = $from->_graph_column;
 
     ( $from, $to ) = ( $to, $from )
@@ -80,7 +84,7 @@ sub delete_edge {
     else {
         my $rel = $from->_graph_rel;
         $to->delete_related( $rel,
-            { $from->_graph_foreign_column => $from->id } );
+            { $from->_graph_foreign_column => $from->$pkey } );
     }
 
     return $g->next::method(@_);

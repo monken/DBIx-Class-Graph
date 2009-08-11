@@ -12,22 +12,31 @@ __PACKAGE__->mk_classdata("_graph_rel");
 __PACKAGE__->mk_classdata("_graph_foreign_column");
 __PACKAGE__->mk_classdata("_graph_column");
 
+my @_import_methods =
+  qw(delete_vertex connected_component_by_vertex biconnected_component_by_vertex
+  weakly_connected_component_by_vertex strongly_connected_component_by_vertex
+  is_sink_vertex is_source_vertex is_successorless_vertex is_successorful_vertex
+  is_predecessorless_vertex is_predecessorful_vertex is_isolated_vertex is_interior
+  is_exterior is_self_loop_vertex successors neighbours predecessors degree
+  in_degree out_degree edges_at edges_from edges_to get_vertex_count random_successor
+  random_predecessor vertices_at);
+
 sub connect_graph {
     my $self = shift;
     my $rel  = shift;
     my $col  = shift;
-    if(ref $col eq "HASH") {
-        $self->_graph_foreign_column(values %$col);
+    if ( ref $col eq "HASH" ) {
+        $self->_graph_foreign_column( values %$col );
         ($col) = keys %$col;
     }
     $self->_graph_rel($col);
-    my ( $primary_col, $too_much ) = $self->primary_columns
+    my ( $pkey, $too_much ) = $self->primary_columns
       or
       $self->throw_exception( __PACKAGE__ . ' requires a primary key column' );
     $self->throw_exception( __PACKAGE__
           . ' does not support result classes with more than one primary key' )
       if ($too_much);
-    $self->throw_exception( q(Syntax for connect_graph is __PACKAGE__->connect_graph( predecessor/successor => 'column/relationship' )))
+    $self->throw_exception(q(wrong syntax for connect_graph))
       unless ( grep { $_ eq $rel } qw(predecessor successor) );
     $self->_connect_by($rel);
     $self->_graph_column($col);
@@ -35,7 +44,7 @@ sub connect_graph {
     if ( $self->has_column($col) ) {
         $self->belongs_to(
             "_graph_relationship" => $self =>
-              { "foreign." . $primary_col => "self." . $col },
+              { "foreign." . $pkey => "self." . $col },
             { join_type                   => 'left' }
         );
         $self->_graph_rel("_graph_relationship");
@@ -45,7 +54,6 @@ sub connect_graph {
       unless $self->resultset_class->isa('DBIx::Class::ResultSet::Graph');
 
 }
-
 
 1;
 
@@ -67,10 +75,9 @@ DBIx::Class::Graph - Represent a graph in a relational database using DBIC
 
   __PACKAGE__->connect_graph(predecessor => "parent_id");
 
-
-
-  my $g = $rs->graph;
-  my @children = $g->successors($rs->get_vertex($id));
+  my @children = $rs->get_vertex($id)->successors;
+  
+  my @vertices = $rs->vertices;
   
   # do other cool stuff like calculating distances etc.
 

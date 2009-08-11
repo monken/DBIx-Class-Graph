@@ -31,7 +31,7 @@ $g = $schema->resultset("Complex")->graph;
 is( scalar $g->edges, 5, 'got 5 edges' );
 
 my $node7 =
-  $schema->resultset("Complex")->create( { title => 'foo', id => 7 } );
+  $schema->resultset("Complex")->create( { title => 'foo', id_foo => 7 } );
 
 $g->add_vertex($node7);
 

@@ -5,20 +5,38 @@ use Moose;
 use DBIx::Class::Graph::Wrapper;
 extends 'DBIx::Class::ResultSet';
 
-
-has graph => ( is => 'rw', isa => 'DBIx::Class::Graph::Wrapper', lazy_build => 1 );
+has _graph => (
+    is         => 'rw',
+    isa        => 'DBIx::Class::Graph::Wrapper',
+    lazy_build => 1,
+    handles    => \&_import_methods
+);
 has _graph_rel => ( is => 'rw' );
 
-*get_graph = \&graph; # backwards compat
+sub _import_methods {
+    return
+      map { $_ => $_ }
+      grep { $_ ne 'new' && $_ !~ /^_/ } $_[1]->get_all_method_names;
+}
 
-sub _build_graph {
-    my $self = shift;
+
+sub graph {
+    $_[0]->_graph && $_[0];
+}
+
+
+*get_graph = \&graph;    # backwards compat
+
+
+sub _build__graph {
+    my $self   = shift;
     my $source = $self->result_class;
+    my ( $pkey ) = $source->primary_columns;
     my $rel    = $source->_graph_rel;
-    my @obj    = $self->search(undef, { prefetch => $source->_graph_rel })->all;
+    my @obj = $self->search( undef, { prefetch => $source->_graph_rel } )->all;
     $self->set_cache( \@obj );
     my $g = new DBIx::Class::Graph::Wrapper( refvertexed => 1 );
-    
+
     $g->add_vertex($_) for (@obj);
 
     foreach my $row (@obj) {
@@ -27,7 +45,7 @@ sub _build_graph {
             next
               unless ( my $pre = $row->get_column( $source->_graph_column ) );
             ( $from, $to ) =
-              ( $g->get_vertex( $row->id ), $g->get_vertex($pre) );
+              ( $g->get_vertex( $row->$pkey ), $g->get_vertex($pre) );
             next unless $from && $to;
 
             ( $from, $to ) = ( $to, $from )
@@ -37,8 +55,10 @@ sub _build_graph {
         else {
             foreach my $pre ( $row->$rel->all ) {
                 ( $from, $to ) = (
-                    $g->get_vertex( $row->id ),
-                    $g->get_vertex( $pre->get_column( $source->_graph_foreign_column ) )
+                    $g->get_vertex( $row->$pkey ),
+                    $g->get_vertex(
+                        $pre->get_column( $source->_graph_foreign_column )
+                    )
                 );
                 next unless $from && $to;
                 ( $from, $to ) = ( $to, $from )
@@ -51,6 +71,7 @@ sub _build_graph {
     }
     return $g;
 }
+
 1;
 __END__
 # Below is stub documentation for your module. You'd better edit it!

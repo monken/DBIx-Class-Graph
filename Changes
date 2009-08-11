@@ -6,6 +6,9 @@ Revision history for Perl extension DBIx::Class::Graph.
     this allows for multiple parents and childs on one object
   - faster, removed some unnecessary prefetches and database roundtrips
   - moosification
+  - get_graph is deprecated and no longer nedded
+  - Graph methods can be called directly on the ResultSet
+  - get_graph/graph no longer returns a Graph object but the resultset
 
 0.05 2009-03-15
   - We will not attempt to set a new resultset if it ->isa() already

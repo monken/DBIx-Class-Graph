@@ -36,7 +36,7 @@ sub new {
 	$t = $schema->populate(
 		"Complex",
 		[
-			[qw(title id)],
+			[qw(title id_foo)],
 			[ "root",     1 ],
 			[ "root",     2 ],
 			[ "child",    3 ],
