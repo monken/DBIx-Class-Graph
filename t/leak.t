@@ -9,7 +9,8 @@ my $t = new TestLib;
 
 my $schema = $t->get_schema;
 
-my $g = $schema->resultset("Complex")->graph;
+my $g = $schema->resultset("Complex");
+$g->graph;
 
 memory_cycle_ok( $g );
 

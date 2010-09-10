@@ -20,7 +20,7 @@ sub _add_edge {
     
     my ( $pkey ) = $from->primary_columns;
 
-    if ( $from->has_column( $from->_graph_column ) ) {
+    if ( $from->result_source->has_column( $from->_graph_column ) ) {
 
         # we have no relationship
 
@@ -37,13 +37,10 @@ sub _add_edge {
     ( $from, $to ) = ( $to, $from )
       if ( $to->_connect_by eq "predecessor" );
 
-    if ( $from->has_column( $from->_graph_column ) ) {
-        $from->update( { $from->_graph_column => $to->$pkey } )
-          unless ( $from->_graph_column eq $to->$pkey );
-    }
-    elsif ( $from->result_source->has_relationship( $from->_graph_column ) ) {
-
-        my $rel    = $from->_graph_rel;
+    my $col = $from->_graph_column;
+    my $rel    = $from->_graph_rel;
+    if ( $from->result_source->relationship_info( $rel )->{attrs}->{accessor} 
+        && $from->result_source->relationship_info( $rel )->{attrs}->{accessor} eq 'multi' ) {
         my $column = $from->_graph_foreign_column;
         my $exists = 0;
         foreach my $map ( $from->$rel->all ) {
@@ -60,7 +57,11 @@ sub _add_edge {
 
         $from->create_related( $rel, { $column => $to->$pkey } ) unless ($exists);
 
+    } else {
+        $from->$rel($to);
+        $from->update;
     }
+        
     ( $from, $to ) = ( $to, $from )
       if ( $to->_connect_by eq "predecessor" );
     return $g->next::method( $from, $to );
@@ -78,7 +79,7 @@ sub delete_edge {
     ( $from, $to ) = ( $to, $from )
       unless ( $from->_connect_by eq "predecessor" );
 
-    if ( $from->has_column($column) ) {
+    if ( $from->result_source->has_column($column) ) {
         $to->update( { $from->_graph_column => undef } );
     }
     else {
@@ -115,6 +116,8 @@ sub get_vertex {
     for (@v) { return $_ if ( $_->can($pkey) && $_->$pkey eq $id ); }
 
 }
+
+*find_vertex = \&get_vertex;
 
 sub all_successors {
     my $g    = shift;

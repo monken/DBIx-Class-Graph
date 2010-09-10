@@ -10,11 +10,13 @@ my $schema = $t->get_schema;
 
 my $rs = $schema->resultset("Simple");
 
-my $g = $rs->get_graph;
+my $g = $rs->graph;
 
-isa_ok($g, "DBIx::Class::ResultSet::Graph");
+isa_ok($rs, "DBIx::Class::ResultSet::Graph");
 
-my $v = $g->get_vertex(1);
+isa_ok($g, "Graph");
+
+my $v = $rs->get_vertex(1);
 
 is($v->id, 1);
 

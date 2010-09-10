@@ -1,7 +1,5 @@
 use Test::More;
 
-use Graph::Convert;
-
 use lib qw(t/lib);
 
 use TestLib;

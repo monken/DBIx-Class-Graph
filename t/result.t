@@ -7,11 +7,11 @@ use TestLib;
 my $t = new TestLib;
 
 my $schema = $t->get_schema;
-my $rs = $schema->resultset("Complex");
+my $rs = $schema->resultset("Complex")->search(undef, { order_by => 'id_foo' });
 
 $rs->graph;
 
-ok($rs->first->all_succesors, 'result has Graph methods');
+is($rs->first->successors, 3, 'result has Graph methods');
 
 
 done_testing;

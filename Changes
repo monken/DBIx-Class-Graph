@@ -1,14 +1,14 @@
 Revision history for Perl extension DBIx::Class::Graph.
 
-0.11 2009-08-10
+1.00 2010-09-01
   - rewrote a lot of the code.
   - Handles a foreign table for parent/child connection now
     this allows for multiple parents and childs on one object
   - faster, removed some unnecessary prefetches and database roundtrips
   - moosification
-  - get_graph is deprecated and no longer nedded
-  - Graph methods can be called directly on the ResultSet
-  - get_graph/graph no longer returns a Graph object but the resultset
+  - get_graph is deprecated and no longer needed
+  - Graph methods can be called directly on the ResultSet, no need to call graph anymore
+  - call ->result_source->has_column instead of has_column on rows
 
 0.05 2009-03-15
   - We will not attempt to set a new resultset if it ->isa() already
