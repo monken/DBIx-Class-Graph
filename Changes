@@ -1,5 +1,8 @@
 Revision history for Perl extension DBIx::Class::Graph.
 
+1.01 2010-09-11
+  - Ship with DDL file
+
 1.00 2010-09-01
   - rewrote a lot of the code.
   - Handles a foreign table for parent/child connection now
