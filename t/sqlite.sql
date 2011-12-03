@@ -1,6 +1,6 @@
 -- 
 -- Created by SQL::Translator::Producer::SQLite
--- Created on Sat Sep 11 10:56:37 2010
+-- Created on Sat Dec  3 19:09:41 2011
 -- 
 
 BEGIN TRANSACTION;
@@ -19,7 +19,8 @@ CREATE TABLE complex (
 CREATE TABLE simple (
   title character varying NOT NULL,
   vaterid integer,
-  id INTEGER PRIMARY KEY NOT NULL
+  id INTEGER PRIMARY KEY NOT NULL,
+  FOREIGN KEY(vaterid) REFERENCES simple(id)
 );
 
 CREATE INDEX simple_idx_vaterid ON simple (vaterid);
@@ -30,7 +31,8 @@ CREATE INDEX simple_idx_vaterid ON simple (vaterid);
 CREATE TABLE simple_succ (
   title character varying NOT NULL,
   childid integer,
-  id INTEGER PRIMARY KEY NOT NULL
+  id INTEGER PRIMARY KEY NOT NULL,
+  FOREIGN KEY(childid) REFERENCES simple_succ(id)
 );
 
 CREATE INDEX simple_succ_idx_childid ON simple_succ (childid);
@@ -41,7 +43,9 @@ CREATE INDEX simple_succ_idx_childid ON simple_succ (childid);
 CREATE TABLE complex_map (
   id INTEGER PRIMARY KEY NOT NULL,
   child integer NOT NULL,
-  parent integer NOT NULL
+  parent integer NOT NULL,
+  FOREIGN KEY(child) REFERENCES complex(id_foo),
+  FOREIGN KEY(parent) REFERENCES complex(id_foo)
 );
 
 CREATE INDEX complex_map_idx_child ON complex_map (child);

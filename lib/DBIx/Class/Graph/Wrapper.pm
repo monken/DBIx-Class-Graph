@@ -6,6 +6,7 @@ use Class::C3;
 
 use base qw/Graph/;
 use List::MoreUtils qw(uniq);
+use Scalar::Util qw(refaddr);
 
 # $self is an arrayref!
 
@@ -56,10 +57,10 @@ sub _add_edge {
         }
 
         $from->create_related( $rel, { $column => $to->$pkey } ) unless ($exists);
-
+        
     } else {
         $from->$rel($to);
-        $from->update;
+        $from->update unless($g->[99]);
     }
         
     ( $from, $to ) = ( $to, $from )
