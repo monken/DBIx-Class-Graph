@@ -3,8 +3,8 @@ package
 
 use base 'DBIx::Class';
 
-__PACKAGE__->load_components qw(Graph Core);
-__PACKAGE__->table qw(simple);
+__PACKAGE__->load_components(qw(Graph Core));
+__PACKAGE__->table(qw(simple));
 __PACKAGE__->add_columns(
     title   => { data_type => "character varying", },
     vaterid => {
@@ -14,7 +14,7 @@ __PACKAGE__->add_columns(
     id => { data_type => "integer", }
 );
 
-__PACKAGE__->set_primary_key qw(id);
+__PACKAGE__->set_primary_key(qw(id));
 
 __PACKAGE__->connect_graph( predecessor => "vaterid" );
 
