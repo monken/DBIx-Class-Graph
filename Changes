@@ -1,5 +1,8 @@
 Revision history for Perl extension DBIx::Class::Graph.
 
+1.06 2016-11-20
+  - fix compatibility with latest Moose
+
 1.05 2011-12-27
   - bump Graph prereq
 
@@ -49,4 +52,3 @@ Revision history for Perl extension DBIx::Class::Graph.
 0.01_01  Mon Mar  3 12:46:31 2008
 	- original version; created by h2xs 1.23 with options
 		-XAn DBIx::Class::Graph
-
