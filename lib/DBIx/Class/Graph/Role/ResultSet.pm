@@ -17,7 +17,7 @@ has _graph_rel => ( is => 'rw' );
 
 sub _import_methods {
     return map { $_ => $_ }
-        grep { $_ ne 'new' && $_ !~ /^_/ && !__PACKAGE__->can($_) }
+        grep { $_ ne 'new' && $_ !~ /^_/ && !__PACKAGE__->can($_) && $_ =~ /^[a-zA-Z]/ }
         $_[1]->get_all_method_names;
 }
 
