@@ -1,6 +1,9 @@
 Revision history for Perl extension DBIx::Class::Graph.
 
-1.04 2011-12-03
+1.05 2011-12-27
+  - bump Graph prereq
+
+1.04 2011-12-24
   - Don't delegate to methods that already exist in ::ResultSet
 
 1.03 2010-11-10
